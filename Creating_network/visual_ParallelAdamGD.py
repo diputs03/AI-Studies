@@ -175,7 +175,7 @@ class Model:
       loss = ((loss) ** 0.5) / (int(l / batch_size) * batch_size)
       print(f"Epoch {epoch}/{epochs}, Loss:{loss}")
 
-  def parallel_train(self, x, y, batch_size, epochs=10, learning_rate=0.1):
+  def parallel_train(self, x, y, proc, batch_size, epochs=10, learning_rate=0.1):
     assert len(x) == len(y)
     l = len(x)
     for epoch in range(epochs):
@@ -186,7 +186,6 @@ class Model:
         X[_],Y[_]=data[_]
 
       k = int(l / batch_size)
-      proc = 1
       def train_proc(mod, X_split, Y_split):
         tdelta_w = {w: 0 for w in mod.weight}
         tdelta_b = {q: 0 for q in mod.neurons}
