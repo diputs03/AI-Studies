@@ -101,20 +101,22 @@ class Model:
     self.all_neurons += Mid_layer
     return Mid_layer
 
-  def train(self, X, Y, batch_size, epochs, learning_rate):
-    l = len(X)
+  def train(self, x, y, batch_size, epochs, learning_rate):
+    assert len(x) == len(y)
+    l = len(x)
     for epoch in range(epochs):
-      data=[(X[_], Y[_]) for _ in range(len(X))]
+      X, Y = x.copy(), y.copy()
+      data=[(X[_], Y[_]) for _ in range(l)]
       random.shuffle(data)
-      for _ in range(len(X)):
+      for _ in range(l):
         X[_],Y[_]=data[_]
       loss = 0
       for batch in range(int(l / batch_size)):
         L, R = batch * batch_size, (batch + 1) * batch_size
         x_train, y_train = X[L:R], Y[L:R]
-        self.backward(x_train, y_train, batch_size, learning_rate)
-        output = self.eval(x_train)
-        loss += np.sum(((y_train - output) ** 2), axis=(0,1))
+        self.update(x_train, y_train, batch_size, learning_rate)
+        output = self.evaluate(x_train)
+        loss += np.sum(((y_train-output) ** 2), axis=(0,1))
       loss = ((loss) ** 0.5) / (int(l / batch_size) * batch_size)
       print(f"Epoch {epoch}/{epochs}, Loss:{loss}")
 
