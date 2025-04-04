@@ -44,7 +44,8 @@ class Model:
     for i in self.neurons:
       self.bias[i] = np.random.uniform(-0.1, 0.1)
       self.bias_gsum[i], self.bias_gsqr[i] = 0, 0
-
+  def __len__(self):
+    return (len(self.Input_layer), len(self.Output_layer), len(self.neurons))
   def __forward(self, X, batch_size):
     assert X.shape == (batch_size,len(self.Input_layer)), \
       f"X.shape={X.shape}, where {(batch_size,len(self.Input_layer))} is expected"
