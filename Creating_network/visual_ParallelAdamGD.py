@@ -51,7 +51,7 @@ class Model:
     a = {q: np.zeros(batch_size) for q in self.neurons}
 
     for i, n in enumerate(self.Input_layer):
-      a[n] = X[:, i]
+      a[n] = X[:, i].copy()
 
     q = deque()
     for i in self.Input_layer:
@@ -156,13 +156,14 @@ class Model:
         self.weight_gsqr.pop((u,v))
     return Mid_layer
 
-  def train(self, X, Y, batch_size, epochs, learning_rate):
-    assert len(X) == len(Y)
-    l = len(X)
+  def train(self, x, y, batch_size, epochs, learning_rate):
+    assert len(x) == len(y)
+    l = len(x)
     for epoch in range(epochs):
-      data=[(X[_], Y[_]) for _ in range(len(X))]
+      X, Y = x.copy(), y.copy()
+      data=[(X[_], Y[_]) for _ in range(l)]
       random.shuffle(data)
-      for _ in range(len(X)):
+      for _ in range(l):
         X[_],Y[_]=data[_]
       loss = 0
       for batch in range(int(l / batch_size)):
@@ -174,17 +175,18 @@ class Model:
       loss = ((loss) ** 0.5) / (int(l / batch_size) * batch_size)
       print(f"Epoch {epoch}/{epochs}, Loss:{loss}")
 
-  def parallel_train(self, X, Y, batch_size, epochs=10, learning_rate=0.1):
-    assert len(X) == len(Y)
-    l = len(X)
+  def parallel_train(self, x, y, batch_size, epochs=10, learning_rate=0.1):
+    assert len(x) == len(y)
+    l = len(x)
     for epoch in range(epochs):
-      data=[(X[_], Y[_]) for _ in range(len(X))]
+      X, Y = x.copy(), y.copy()
+      data=[(X[_], Y[_]) for _ in range(l)]
       random.shuffle(data)
-      for _ in range(len(X)):
+      for _ in range(l):
         X[_],Y[_]=data[_]
 
       k = int(l / batch_size)
-      proc = 4
+      proc = 1
       def train_proc(mod, X_split, Y_split):
         tdelta_w = {w: 0 for w in mod.weight}
         tdelta_b = {q: 0 for q in mod.neurons}
@@ -223,6 +225,7 @@ class Model:
       loss = (np.sum(((Y-output)**2), axis=(0,1)) ** 0.5)\
        / (int(l / batch_size) * batch_size)
       print(f"Epoch {epoch}/{epochs}, Loss:{loss}")
+
 X=np.array([[0,0],[0,1],[1,0],[1,1]])
 Y=np.array([[0],[1],[1],[0]])
 mod=Model(2, 1)
